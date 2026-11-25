@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimerPro | Pomodoro e cronômetro</title>
+  <meta name="description" content="Cronômetro com modo Pomodoro: configure ciclos de foco e pausa e acompanhe sua produtividade.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-fase="foco">
+  <main class="app">
+    <header class="topo">
+      <p class="marca">Timer<b>Pro</b></p>
+      <div class="abas" role="tablist" aria-label="Modo">
+        <button role="tab" id="aba-pomodoro" aria-selected="true" aria-controls="painel-pomodoro">Pomodoro</button>
+        <button role="tab" id="aba-cronometro" aria-selected="false" aria-controls="painel-cronometro">Cronômetro</button>
+      </div>
+      <button class="icone" id="abrir-config" aria-label="Configurações do Pomodoro" title="Configurações">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      </button>
+    </header>
+
+    <!-- Pomodoro -->
+    <section id="painel-pomodoro" role="tabpanel" aria-labelledby="aba-pomodoro">
+      <div class="fases" role="group" aria-label="Fase">
+        <button data-fase="foco" aria-pressed="true">Foco</button>
+        <button data-fase="curta" aria-pressed="false">Pausa curta</button>
+        <button data-fase="longa" aria-pressed="false">Pausa longa</button>
+      </div>
+      <div class="relogio">
+        <svg viewBox="0 0 220 220" aria-hidden="true"><circle class="trilho" cx="110" cy="110" r="100"/><circle class="anel" id="anel" cx="110" cy="110" r="100"/></svg>
+        <div class="relogio__centro">
+          <p class="tempo" id="tempo" aria-live="off">25:00</p>
+          <p class="rotulo" id="rotulo">Hora de focar</p>
+        </div>
+      </div>
+      <div class="ciclos" id="ciclos" aria-label="Ciclos"></div>
+      <label class="tarefa">
+        <span class="sr">No que você está trabalhando?</span>
+        <input id="tarefa" type="text" maxlength="60" placeholder="No que você está trabalhando?">
+      </label>
+      <div class="controles">
+        <button class="ctrl sec" id="reiniciar" aria-label="Reiniciar fase" title="Reiniciar (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+        <button class="ctrl principal" id="iniciar">Iniciar</button>
+        <button class="ctrl sec" id="pular" aria-label="Pular para a próxima fase" title="Pular (N)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 4 10 8-10 8V4ZM19 5v14"/></svg></button>
+      </div>
+      <p class="dica">Espaço para iniciar/pausar · R reinicia · N pula</p>
+
+      <div class="stats">
+        <div><strong id="st-pomos">0</strong><span>pomodoros hoje</span></div>
+        <div><strong id="st-foco">0 min</strong><span>de foco hoje</span></div>
+        <div><strong id="st-seq">0</strong><span>dias seguidos</span></div>
+      </div>
+      <section class="registro">
+        <div class="registro__topo"><h2>Sessões de hoje</h2><button class="link" id="limpar-hoje">Limpar</button></div>
+        <ol id="sessoes"></ol>
+      </section>
+    </section>
+
+    <!-- Cronômetro -->
+    <section id="painel-cronometro" role="tabpanel" aria-labelledby="aba-cronometro" hidden>
+      <div class="relogio relogio--crono">
+        <svg viewBox="0 0 220 220" aria-hidden="true"><circle class="trilho" cx="110" cy="110" r="100"/><circle class="ponteiro" id="ponteiro" cx="110" cy="110" r="100"/></svg>
+        <div class="relogio__centro">
+          <p class="tempo tempo--crono" id="crono">00:00<small>,00</small></p>
+          <p class="rotulo" id="crono-rotulo">Pronto</p>
+        </div>
+      </div>
+      <div class="controles">
+        <button class="ctrl sec" id="crono-zerar" aria-label="Zerar" title="Zerar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+        <button class="ctrl principal" id="crono-iniciar">Iniciar</button>
+        <button class="ctrl sec" id="crono-volta" aria-label="Marcar volta" title="Volta (V)" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></button>
+      </div>
+      <p class="dica">Espaço para iniciar/pausar · V marca volta</p>
+      <section class="registro">
+        <div class="registro__topo"><h2>Voltas</h2></div>
+        <ol id="voltas" class="voltas"></ol>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="config" aria-labelledby="config-titulo">
+    <form method="dialog" id="form-config">
+      <h2 id="config-titulo">Configurações do Pomodoro</h2>
+      <div class="grade">
+        <label>Foco (min)<input type="number" id="c-foco" min="1" max="120" required></label>
+        <label>Pausa curta (min)<input type="number" id="c-curta" min="1" max="60" required></label>
+        <label>Pausa longa (min)<input type="number" id="c-longa" min="1" max="90" required></label>
+        <label>Pausa longa a cada<input type="number" id="c-ciclos" min="2" max="10" required></label>
+      </div>
+      <label class="opcao"><input type="checkbox" id="c-auto"> Começar a próxima fase automaticamente</label>
+      <label class="opcao"><input type="checkbox" id="c-som"> Tocar som ao terminar uma fase</label>
+      <label class="opcao"><input type="checkbox" id="c-notif"> Mostrar notificação do navegador</label>
+      <div class="acoes">
+        <button type="button" class="link" id="c-padrao">Restaurar padrão</button>
+        <button value="cancelar" formnovalidate class="btn sec">Cancelar</button>
+        <button value="salvar" class="btn">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="js/script.js"></script>
+</body>
+</html>
